@@ -1,0 +1,36 @@
+name: Azr Build
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Klasor Yapisini Hazirla
+        run: |
+          mkdir -p src/main/java/com/azr/client/module/modules
+          mkdir -p src/main/java/com/azr/client/mixin
+          # Dosyaları yerlerine taşıyoruz
+          [ -f AzrClient.java ] && mv AzrClient.java src/main/java/com/azr/client/ || true
+          [ -f Modül.java ] && mv Modül.java src/main/java/com/azr/client/module/ || true
+          [ -f ModülKategorisi.java ] && mv ModülKategorisi.java src/main/java/com/azr/client/module/ || true
+          [ -f ClickGUI.java ] && mv ClickGUI.java src/main/java/com/azr/client/module/ || true
+          [ -f KillAura.java ] && mv KillAura.java src/main/java/com/azr/client/module/modules/ || true
+          [ -f MinecraftClientMixin.java ] && mv MinecraftClientMixin.java src/main/java/com/azr/client/mixin/ || true
+          [ -f EntityVelocityUpdateS2CPacketMixin.java ] && mv EntityVelocityUpdateS2CPacketMixin.java src/main/java/com/azr/client/mixin/ || true
+      - name: Setup Gradle
+        run: |
+          gradle wrapper
+          chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew build
+      - name: Modu Kaydet
+        uses: actions/upload-artifact@v4
+        with:
+          name: AzrClient-Mod-Dosyasi
+          path: build/libs/*.jar
+          
